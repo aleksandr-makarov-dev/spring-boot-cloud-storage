@@ -1,10 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <title>Registration</title>
 </head>
-<body>
-<h1>Hello world!</h1>
+<body class="p-4 mx-auto" style="max-width: 768px">
+<h2 class="mb-3">Register User</h2>
+<div th:if="${errors}" class="alert alert-danger mb-3" role="alert">
+    <ul>
+        <li th:each="error : ${errors}" th:text="${error}"></li>
+    </ul>
+</div>
+<form th:action="@{/users/register}" method="post" th:object="${request}">
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input class="form-control" id="username" name="username" th:value="${request.username}">
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" aria-describedby="passwordInputHelp" th:value="${request.password}">
+        <div id="passwordInputHelp" class="form-text">
+            Your password must be at least 6 characters long, contain letters and numbers.
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="passwordConfirm" class="form-label">Password Confirmation</label>
+        <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" th:value="${request.passwordConfirm}">
+    </div>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+</form>
 </body>
 </html>

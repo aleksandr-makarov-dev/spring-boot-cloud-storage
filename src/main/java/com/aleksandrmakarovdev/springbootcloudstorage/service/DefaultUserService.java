@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 public class DefaultUserService implements UserService {
@@ -27,6 +30,7 @@ public class DefaultUserService implements UserService {
         User user = User.builder()
                 .username(request.getUsername())
                 .passwordHash(passwordHash)
+                .createdAt(Date.from(Instant.now()))
                 .build();
 
         usersRepository.save(user);
