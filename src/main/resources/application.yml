@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: spring-boot-cloud-storage
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloud_storage_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
