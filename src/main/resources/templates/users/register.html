@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <title>Registration</title>
+    <title>Registration - Cloud Storage</title>
 </head>
-<body class="p-4 mx-auto" style="max-width: 768px">
-<h2 class="mb-3">Register User</h2>
+<body class="p-4 mx-auto" style="max-width: 500px">
+<div class="mb-3">
+    <h2 class="text-center">Create Account</h2>
+    <p class="text-center">Get started with your free account</p>
+</div>
 <div th:if="${errors}" class="alert alert-danger mb-3" role="alert">
-    <ul>
+    <ul class="mb-0">
         <li th:each="error : ${errors}" th:text="${error}"></li>
     </ul>
 </div>
@@ -28,7 +31,10 @@
         <label for="passwordConfirm" class="form-label">Password Confirmation</label>
         <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" th:value="${request.passwordConfirm}">
     </div>
-    <button type="submit" class="btn btn-primary">Create Account</button>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary w-100">Register</button>
+    </div>
+    <p class="text-center">Have an account? <a href="/users/login">Log in</a></p>
 </form>
 </body>
 </html>
