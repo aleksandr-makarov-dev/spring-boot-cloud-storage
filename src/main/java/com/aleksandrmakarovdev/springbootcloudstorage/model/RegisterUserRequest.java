@@ -3,12 +3,16 @@ package com.aleksandrmakarovdev.springbootcloudstorage.model;
 import com.aleksandrmakarovdev.springbootcloudstorage.annotations.ValidUsername;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 // TODO: check that password contains both letters and numbers
 // TODO: check that password and password confirm are equal
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterUserRequest {
 
     @NotBlank(message = "Username cannot be empty.")
