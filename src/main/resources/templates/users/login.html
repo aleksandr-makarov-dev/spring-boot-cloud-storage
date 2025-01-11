@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <title>Log in - Cloud Storage</title>
+</head>
+<body class="p-4 mx-auto" style="max-width: 500px">
+<div class="mb-3">
+  <h2 class="text-center">Log in Account</h2>
+  <p class="text-center">Welcome back! Enter credentials to start using account.</p>
+</div>
+<div th:if="${errors}" class="alert alert-danger mb-3" role="alert">
+  <ul class="mb-0">
+    <li th:each="error : ${errors}" th:text="${error}"></li>
+  </ul>
+</div>
+<div th:if="${message}" class="alert alert-success mb-3" role="alert" th:text="${message}">
+</div>
+<form th:action="@{/users/login}" method="post" th:object="${request}">
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input class="form-control" id="username" name="username" th:value="${request.username}">
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" aria-describedby="passwordInputHelp" th:value="${request.password}">
+    <div id="passwordInputHelp" class="form-text">
+      Your password must be at least 6 characters long, contain letters and numbers.
+    </div>
+  </div>
+  <div class="mb-3">
+    <button type="submit" class="btn btn-primary w-100">Log in</button>
+  </div>
+  <p class="text-center">Don't have account? <a href="/users/register">Register</a></p>
+</form>
+</body>
+</html>
