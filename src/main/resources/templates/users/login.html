@@ -10,10 +10,16 @@
   <h2 class="text-center">Log in Account</h2>
   <p class="text-center">Welcome back! Enter credentials to start using account.</p>
 </div>
-<div th:if="${errors}" class="alert alert-danger mb-3" role="alert">
-  <ul class="mb-0">
-    <li th:each="error : ${errors}" th:text="${error}"></li>
-  </ul>
+<!--<div th:if="${errors}" class="alert alert-danger mb-3" role="alert">-->
+<!--  <ul class="mb-0">-->
+<!--    <li th:each="error : ${errors}" th:text="${error}"></li>-->
+<!--  </ul>-->
+<!--</div>-->
+<div th:if="${param.error != null}" class="alert alert-danger mb-3" role="alert">
+  Invalid credentials. Please check your username and password, and try again.
+</div>
+<div th:if="${param.logout != null}" class="alert alert-success mb-3" role="alert">
+  You have been logged out successfully.
 </div>
 <div th:if="${message}" class="alert alert-success mb-3" role="alert" th:text="${message}">
 </div>

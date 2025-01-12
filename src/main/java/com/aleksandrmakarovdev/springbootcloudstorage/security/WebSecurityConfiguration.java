@@ -26,25 +26,33 @@ public class WebSecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         return http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests.anyRequest().permitAll())
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/users/register","/users/login").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(login -> login
+                        .loginPage("/users/login")
+                        .defaultSuccessUrl("/users/me")
+                        .permitAll())
+                .logout(logout -> logout.logoutUrl("/users/logout")
+                        .logoutSuccessUrl("/users/login?logout=true")
+                        .clearAuthentication(true)
+                        .permitAll())
                 .build();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-       DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
-       provider.setPasswordEncoder(passwordEncoder());
-       provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
 
-       return provider;
+        return provider;
     }
 
     @Bean

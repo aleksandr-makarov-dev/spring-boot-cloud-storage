@@ -6,9 +6,11 @@ import com.aleksandrmakarovdev.springbootcloudstorage.model.LoginUserRequest;
 import com.aleksandrmakarovdev.springbootcloudstorage.model.RegisterUserRequest;
 import com.aleksandrmakarovdev.springbootcloudstorage.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DefaultUserService implements UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -42,13 +45,11 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public void loginUser(LoginUserRequest request) {
+    public Authentication loginUser(LoginUserRequest request) {
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
 
-        Authentication authentication = authenticationManager
+        return authenticationManager
                 .authenticate(authenticationToken);
-
-        // TODO: do something...
     }
 }

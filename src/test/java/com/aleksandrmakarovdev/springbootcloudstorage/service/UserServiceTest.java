@@ -81,6 +81,5 @@ class UserServiceTest {
 
         assertEquals(1, usersRepository.count(), "Number of users should be 1");
 
-
     }
 }

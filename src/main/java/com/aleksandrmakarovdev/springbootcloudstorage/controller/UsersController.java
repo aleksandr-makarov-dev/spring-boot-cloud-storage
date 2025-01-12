@@ -3,9 +3,16 @@ package com.aleksandrmakarovdev.springbootcloudstorage.controller;
 import com.aleksandrmakarovdev.springbootcloudstorage.exception.UserExistsException;
 import com.aleksandrmakarovdev.springbootcloudstorage.model.LoginUserRequest;
 import com.aleksandrmakarovdev.springbootcloudstorage.model.RegisterUserRequest;
+import com.aleksandrmakarovdev.springbootcloudstorage.security.WebUserDetails;
 import com.aleksandrmakarovdev.springbootcloudstorage.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,7 +23,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.util.List;
+
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 @Controller
 @RequestMapping("/users")
@@ -64,31 +74,56 @@ public class UsersController {
         return "users/login";
     }
 
-    @PostMapping("login")
-    public String login(Model model, @ModelAttribute("request") @Valid LoginUserRequest request, BindingResult bindingResult) {
+//    @PostMapping("login")
+//    public String login(Model model, @ModelAttribute("request") @Valid LoginUserRequest request, BindingResult bindingResult, HttpServletRequest httpRequest) {
+//
+//        if (bindingResult.hasErrors()) {
+//
+//            model.addAttribute("errors", bindingResult
+//                    .getAllErrors()
+//                    .stream()
+//                    .map(ObjectError::getDefaultMessage)
+//                    .toList());
+//
+//            model.addAttribute("user", new LoginUserRequest());
+//
+//            return "users/login";
+//        }
+//
+//        try {
+//            Authentication authentication = userService.loginUser(request);
+//
+//            SecurityContext securityContext = SecurityContextHolder.getContext();
+//            securityContext.setAuthentication(authentication);
+//
+//            HttpSession session = httpRequest.getSession();
+//            session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+//
+//        } catch (Exception e) {
+//
+//            model.addAttribute("errors", List.of(e.getMessage()));
+//            model.addAttribute("user", new LoginUserRequest());
+//
+//            return "users/login";
+//        }
+//
+//        return "redirect:/users/me";
+//    }
 
-        if (bindingResult.hasErrors()) {
+    @GetMapping("me")
+    public String me(@AuthenticationPrincipal WebUserDetails userDetails, Model model) {
 
-            model.addAttribute("errors", bindingResult
-                    .getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .toList());
-
-            model.addAttribute("user", request);
-
-            return "users/login";
+        if (userDetails != null) {
+            model.addAttribute("user", userDetails.getUsername());
+        } else {
+            model.addAttribute("user", "anonymous");
         }
 
-        try {
-            userService.loginUser(request);
-        } catch (Exception e) {
-            model.addAttribute("errors", List.of(e.getMessage()));
-            model.addAttribute("user", new LoginUserRequest());
+        return "users/me";
+    }
 
-            return "users/login";
-        }
-
-        return "redirect:/";
+    @GetMapping("logout")
+    public String logout() {
+        return "users/logout";
     }
 }
