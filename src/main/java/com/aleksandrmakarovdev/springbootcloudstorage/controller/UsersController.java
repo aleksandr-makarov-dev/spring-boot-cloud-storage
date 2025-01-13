@@ -74,41 +74,41 @@ public class UsersController {
         return "users/login";
     }
 
-//    @PostMapping("login")
-//    public String login(Model model, @ModelAttribute("request") @Valid LoginUserRequest request, BindingResult bindingResult, HttpServletRequest httpRequest) {
-//
-//        if (bindingResult.hasErrors()) {
-//
-//            model.addAttribute("errors", bindingResult
-//                    .getAllErrors()
-//                    .stream()
-//                    .map(ObjectError::getDefaultMessage)
-//                    .toList());
-//
-//            model.addAttribute("user", new LoginUserRequest());
-//
-//            return "users/login";
-//        }
-//
-//        try {
-//            Authentication authentication = userService.loginUser(request);
-//
-//            SecurityContext securityContext = SecurityContextHolder.getContext();
-//            securityContext.setAuthentication(authentication);
-//
-//            HttpSession session = httpRequest.getSession();
-//            session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
-//
-//        } catch (Exception e) {
-//
-//            model.addAttribute("errors", List.of(e.getMessage()));
-//            model.addAttribute("user", new LoginUserRequest());
-//
-//            return "users/login";
-//        }
-//
-//        return "redirect:/users/me";
-//    }
+    @PostMapping("login")
+    public String login(Model model, @ModelAttribute("request") @Valid LoginUserRequest request, BindingResult bindingResult, HttpServletRequest httpRequest) {
+
+        if (bindingResult.hasErrors()) {
+
+            model.addAttribute("errors", bindingResult
+                    .getAllErrors()
+                    .stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .toList());
+
+            model.addAttribute("user", new LoginUserRequest());
+
+            return "users/login";
+        }
+
+        try {
+            Authentication authentication = userService.loginUser(request);
+
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+
+            HttpSession session = httpRequest.getSession();
+            session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+        } catch (Exception e) {
+
+            model.addAttribute("errors", List.of(e.getMessage()));
+            model.addAttribute("user", new LoginUserRequest());
+
+            return "users/login";
+        }
+
+        return "redirect:/users/me";
+    }
 
     @GetMapping("me")
     public String me(@AuthenticationPrincipal WebUserDetails userDetails, Model model) {

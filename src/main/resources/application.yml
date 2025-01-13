@@ -8,3 +8,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
+  minio:
+    endpoint: http://localhost:9000
+    access-key: 9DoDjTvmIhbTCN5AMh8i
+    secret-key: iVhZGLZbYhbqCsJQ10rBYmH2fvyw2hm4a8k2Kh7M
+    bucket: my-bucket

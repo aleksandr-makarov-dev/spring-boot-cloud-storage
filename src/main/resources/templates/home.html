@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Home - Cloud Storage</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-lg">
+        <a class="navbar-brand" href="#">
+            Cloud Storage
+        </a>
+        <div class="ms-auto">
+            <button class="btn btn-outline-light me-2" type="button">Login</button>
+            <button class="btn btn-primary" type="button">Register</button>
+        </div>
+    </div>
+</nav>
+
+<main class="container-lg py-4">
+    <nav class="mb-3 d-flex ">
+        <form class="d-flex flex-grow-1 me-2">
+            <div class="input-group w-100 me-2">
+                <span class="input-group-text">Search</span>
+                <input class="form-control" type="text" placeholder="Enter search query..."/>
+            </div>
+            <button class="btn btn-secondary" type="submit">Search</button>
+        </form>
+        <div>
+            <a class="btn btn-primary me-2">Create Folder</a>
+            <a class="btn btn-warning">Upload</a>
+        </div>
+    </nav>
+    <div class="card">
+        <nav aria-label="breadcrumb" class="card-header">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Library</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Data</li>
+            </ol>
+        </nav>
+        <div class="card-body">
+            <table class="border table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Size</th>
+                    <th scope="col">Last Modified</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td>
+                        <span th:switch="${item.isDirectory()}">
+                            <span th:case="true">Dir</span>
+                            <span th:case="false">File</span>
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:switch="${item.isDirectory()}">
+                            <a th:case="true" th:href="@{'/?path=' + ${item.getPath()}}" th:text="${item.getName()}"></a>
+                            <span th:case="false" th:text="${item.getName()}"></span>
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:switch="${item.isDirectory()}">
+                            <span th:case="true">-</span>
+                            <span th:case="false" th:text="${item.getSize()}"></span>
+                        </span>
+                    </td>
+                    <td th:text="${item.getLastModified()}"></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary"><i class="fa-solid fa-download"></i></button>
+                        <button class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+                </tbody>
+
+
+            </table>
+        </div>
+        <nav class="card-footer d-flex justify-content-end" aria-label="Page navigation example">
+            <ul class="pagination mb-0">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+</main>
+
+</body>
+</html>

@@ -32,12 +32,12 @@ public class WebSecurityConfiguration {
         return http
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/css/**").permitAll()
-                        .requestMatchers("/users/register","/users/login").permitAll()
+                        .requestMatchers("/users/register","/users/login","/").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(login -> login
-                        .loginPage("/users/login")
-                        .defaultSuccessUrl("/users/me")
-                        .permitAll())
+//                .formLogin(login -> login
+//                        .loginPage("/users/login")
+//                        .defaultSuccessUrl("/users/me")
+//                        .permitAll())
                 .logout(logout -> logout.logoutUrl("/users/logout")
                         .logoutSuccessUrl("/users/login?logout=true")
                         .clearAuthentication(true)
