@@ -19,9 +19,9 @@ public class HomeController {
     private final StorageService storageService;
 
     @GetMapping
-    public String home(@RequestParam(value = "path", required = false) String path, Model model) {
+    public String home(@RequestParam(value = "prefix", required = false) String prefix, Model model) {
 
-        List<StorageObject> items = storageService.findByPrefix(path);
+        List<StorageObject> items = storageService.findByPrefix(prefix);
         model.addAttribute("items", items);
 
         return "home";

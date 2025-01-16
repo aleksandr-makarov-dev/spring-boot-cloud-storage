@@ -9,12 +9,12 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-lg">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
             Cloud Storage
         </a>
         <div class="ms-auto">
-            <button class="btn btn-outline-light me-2" type="button">Login</button>
-            <button class="btn btn-primary" type="button">Register</button>
+            <a href="/users/login" class="btn btn-outline-light me-2" type="button">Login</a>
+            <a href="/users/register" class="btn btn-primary" type="button">Register</a>
         </div>
     </div>
 </nav>
@@ -29,8 +29,8 @@
             <button class="btn btn-secondary" type="submit">Search</button>
         </form>
         <div>
-            <a class="btn btn-primary me-2">Create Folder</a>
-            <a class="btn btn-warning">Upload</a>
+            <a class="btn btn-primary me-2" th:href="@{/storage/create(prefix=${param.prefix})}">Create Folder</a>
+            <a class="btn btn-warning" th:href="@{/storage/upload(prefix=${param.prefix})}">Upload</a>
         </div>
     </nav>
     <div class="card">
@@ -63,7 +63,7 @@
 
                     <td>
                         <span th:switch="${item.isDirectory()}">
-                            <a th:case="true" th:href="@{'/?path=' + ${item.getPath()}}" th:text="${item.getName()}"></a>
+                            <a th:case="true" th:href="@{/(prefix=${item.getPath()})}" th:text="${item.getName()}"></a>
                             <span th:case="false" th:text="${item.getName()}"></span>
                         </span>
                     </td>
@@ -75,15 +75,16 @@
                         </span>
                     </td>
                     <td th:text="${item.getLastModified()}"></td>
-                    <td>
+                    <td class="d-flex gap-2">
                         <button class="btn btn-sm btn-primary"><i class="fa-solid fa-download"></i></button>
                         <button class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                        <form th:if="${!item.isDirectory()}" th:action="@{/storage/delete(prefix=${param.prefix})}" method="post">
+                            <input type="hidden" name="object" th:value="${item.getPath()}">
+                            <button class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
-
-
             </table>
         </div>
         <nav class="card-footer d-flex justify-content-end" aria-label="Page navigation example">
@@ -97,6 +98,5 @@
         </nav>
     </div>
 </main>
-
 </body>
 </html>

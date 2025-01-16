@@ -32,8 +32,8 @@ public class WebSecurityConfiguration {
         return http
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/css/**").permitAll()
-                        .requestMatchers("/users/register","/users/login","/").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/users/register", "/users/login", "/", "storage/**").permitAll()
+                        .anyRequest().permitAll())
 //                .formLogin(login -> login
 //                        .loginPage("/users/login")
 //                        .defaultSuccessUrl("/users/me")
