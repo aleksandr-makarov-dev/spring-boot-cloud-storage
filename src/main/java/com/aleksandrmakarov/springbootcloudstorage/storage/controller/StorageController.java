@@ -1,9 +1,6 @@
 package com.aleksandrmakarov.springbootcloudstorage.storage.controller;
 
-import com.aleksandrmakarov.springbootcloudstorage.storage.model.Breadcrumb;
-import com.aleksandrmakarov.springbootcloudstorage.storage.model.DeleteStorageObjectRequest;
-import com.aleksandrmakarov.springbootcloudstorage.storage.model.RenameStorageObjectRequest;
-import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObjectModel;
+import com.aleksandrmakarov.springbootcloudstorage.storage.model.*;
 import com.aleksandrmakarov.springbootcloudstorage.storage.service.StorageService;
 import com.aleksandrmakarov.springbootcloudstorage.storage.util.StorageUtils;
 import jakarta.validation.Valid;
@@ -13,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +25,7 @@ public class StorageController {
     public String index(@RequestParam(value = "prefix", required = false) String prefix,
                         Model model) {
 
-        List<StorageObjectModel> items = storageService.findAll(prefix);
+        List<StorageObjectModel> items = storageService.findObjects(prefix);
 
         List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
 
@@ -83,6 +79,31 @@ public class StorageController {
 
             return "storage/delete";
         }
+
+        String redirectUrl = "redirect:/storage";
+
+        if (request.getPrefix() != null && !request.getPrefix().isEmpty()) {
+            redirectUrl += "?prefix=" + request.getPrefix();
+        }
+
+        return redirectUrl;
+    }
+
+    @GetMapping("upload")
+    public String upload(@RequestParam(value = "prefix", required = false) String prefix,
+                         Model model) {
+
+        List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
+
+        model.addAttribute("breadcrumbs", breadcrumbs);
+
+        return "storage/upload";
+    }
+
+    @PostMapping("upload")
+    public String upload(@ModelAttribute @Valid UploadFilesRequest request) {
+
+        storageService.saveObjects(request.getPrefix(), request.getFiles());
 
         String redirectUrl = "redirect:/storage";
 

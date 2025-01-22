@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>List - Cloud Storage</title>
     <style>
 
         table {
@@ -22,7 +22,7 @@
             list-style: none;
         }
 
-        ul{
+        ul {
             padding-inline: 0;
         }
 
@@ -34,18 +34,38 @@
             padding: 3px;
             content: "/";
         }
+
+        .navigation {
+            margin-bottom: 10px;
+            gap: 24px;
+            display: flex;
+        }
     </style>
 </head>
-<body>
+<body style="max-width: 864px;">
 <section>
     <header>
-        <ul class="breadcrumbs">
-            <li th:each="crumb: ${breadcrumbs}">
-                <a th:href="@{/storage(prefix=${crumb.href()})}"  th:text="${crumb.name()}"></a>
-            </li>
-        </ul>
+        <div>
+            <ul class="breadcrumbs">
+                <li th:each="crumb: ${breadcrumbs}">
+                    <a th:href="@{/storage(prefix=${crumb.href()})}" th:text="${crumb.name()}"></a>
+                </li>
+            </ul>
+        </div>
+        <div class="navigation">
+            <div style="flex: 1">
+                <form style="display: flex; width: 100%">
+                    <input style="width: 100%" name="searchQuery" id="searchQuery" type="search">
+                    <button>Search</button>
+                </form>
+            </div>
+            <div style="display: flex; gap: 10px">
+                <a th:href="@{/storage/create(prefix=${param.prefix})}">Create folder</a>
+                <a th:href="@{/storage/upload(prefix=${param.prefix})}">Upload</a>
+            </div>
+        </div>
     </header>
-    <table>
+    <table style="width: 100%">
         <thead>
         <tr>
             <th><a href="#">File Name</a></th>
@@ -61,8 +81,8 @@
                 <a th:href="@{/storage(prefix=${item.prefix() + item.name()})}" th:text="${item.name()}"></a>
             </td>
             <td th:if="${!item.isDir()}" th:text="${item.name()}"></td>
-            <td th:if="${!item.isDir()}">file</td>
-            <td th:if="${item.isDir()}">dir</td>
+            <td th:if="${!item.isDir()}">FILE</td>
+            <td th:if="${item.isDir()}">DIR</td>
             <td th:text="${item.lastModified()}"></td>
             <td th:text="${item.size()}"></td>
             <td>
@@ -89,9 +109,6 @@
         </tr>
         </tfoot>
     </table>
-    <footer>
-
-    </footer>
 </section>
 </body>
 </html>

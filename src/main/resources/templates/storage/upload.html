@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload - Cloud Storage</title>
+    <style>
+        label {
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .drop-zone {
+            width: 345px;
+            padding: 45px;
+            border: 1px dashed black;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .breadcrumbs {
+            list-style: none;
+        }
+
+        ul {
+            padding-inline: 0;
+        }
+
+        .breadcrumbs li {
+            display: inline;
+        }
+
+        .breadcrumbs li + li:before {
+            padding: 3px;
+            content: "/";
+        }
+    </style>
+</head>
+<body style="max-width: 864px;">
+<div>
+    <ul class="breadcrumbs">
+        <li th:each="crumb: ${breadcrumbs}">
+            <a th:href="@{/storage/upload(prefix=${crumb.href()})}" th:text="${crumb.name()}"></a>
+        </li>
+    </ul>
+</div>
+<div style="margin-bottom: 10px">
+    <h3>Upload files and folders</h3>
+    <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="hidden" name="prefix" th:value="${param.prefix}">
+            <label class="drop-zone" for="fileInput">Drag files here or <span
+                    style="color:blue; text-decoration: underline">Choose your files</span></label>
+            <input id="fileInput" hidden="hidden" name="files" type="file" multiple>
+        </div>
+        <div id="fileListing">
+        </div>
+        <button>Upload files</button>
+    </form>
+</div>
+<div>
+    <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="prefix" th:value="${param.prefix}">
+        <div class="form-group">
+            <label class="drop-zone" for="folderInput">Drag folder here or <span
+                    style="color:blue; text-decoration: underline">Choose your folder</span></label>
+            <input id="folderInput" hidden="hidden" name="files" type="file" webkitdirectory mozdirectory multiple>
+        </div>
+        <div id="folderListing">
+        </div>
+        <button>Upload folder</button>
+    </form>
+</div>
+<script>
+    const folderInput = document.getElementById("folderInput");
+
+    folderInput.addEventListener("change", function (e) {
+
+        const folderList = document.getElementById("folderListing")
+        folderList.innerHTML = "";
+
+        const files = e.target.files;
+
+        const ul = document.createElement("ul");
+
+        for (const file of files) {
+            const li = document.createElement("li")
+            li.innerText = file.name;
+
+            ul.appendChild(li);
+        }
+
+        folderList.appendChild(ul);
+    })
+
+    const fileInput = document.getElementById("fileInput");
+
+    fileInput.addEventListener("change", function (e) {
+
+        const fileList = document.getElementById("fileListing")
+        fileList.innerHTML = "";
+
+        const files = e.target.files;
+
+        const ul = document.createElement("ul");
+
+        for (const file of files) {
+            const li = document.createElement("li")
+            li.innerText = file.name;
+
+            ul.appendChild(li);
+        }
+
+        fileList.appendChild(ul);
+    })
+</script>
+</body>
+</html>
