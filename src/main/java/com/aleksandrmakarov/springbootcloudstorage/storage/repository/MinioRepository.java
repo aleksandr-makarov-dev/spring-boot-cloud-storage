@@ -82,20 +82,32 @@ public class MinioRepository {
         return objectList;
     }
 
+    /**
+     * Saves a storage object to the Minio storage system.
+     *
+     * @param saveStorageObject the object to be saved, containing details like object name,
+     *                          content type, input stream, and size.
+     */
     public void save(SaveStorageObject saveStorageObject) {
 
         try {
+            // Build the PutObjectArgs for the Minio client, specifying the bucket, object name,
+            // content type, and the input stream for uploading the file.
             PutObjectArgs args = PutObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(saveStorageObject.object())
-                    .contentType(saveStorageObject.type())
-                    .stream(saveStorageObject.stream(), saveStorageObject.size(), -1)
+                    .bucket(bucket) // Specify the bucket where the object will be stored.
+                    .object(saveStorageObject.object()) // Set the object name (path).
+                    .contentType(saveStorageObject.type()) // Set the content type (MIME type) of the file.
+                    .stream(saveStorageObject.stream(), saveStorageObject.size(), -1) // Set the input stream and the size of the file.
                     .build();
 
+            // Upload the object to Minio.
             minioClient.putObject(args);
+
         } catch (Exception e) {
+            // If an error occurs during the upload, log the exception with an error message.
             log.error("Failed to save object:", e);
         }
     }
+
 }
 
