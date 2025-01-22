@@ -25,7 +25,7 @@ public class DefaultStorageService implements StorageService {
                         o.name(),
                         o.isDir(),
                         StorageUtils.formatSize(o.size()),
-                        o.lastModified()
+                        StorageUtils.formatZonedDateTime(o.lastModified())
                 ))
                 .toList();
     }

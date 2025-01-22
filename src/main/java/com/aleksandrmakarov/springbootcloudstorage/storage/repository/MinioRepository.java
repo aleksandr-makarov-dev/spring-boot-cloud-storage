@@ -30,7 +30,7 @@ public class MinioRepository {
         ListObjectsArgs args = ListObjectsArgs.builder()
                 .bucket(bucket)
                 .prefix(prefix)
-//                .startAfter(prefix)
+                .startAfter(prefix)
                 .build();
 
         Iterable<Result<Item>> objects = minioClient.listObjects(args);
@@ -58,5 +58,11 @@ public class MinioRepository {
         }
 
         return objectList;
+    }
+
+    public void move(final String objectName, final String newObjectName) {
+
+
+
     }
 }

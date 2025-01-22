@@ -1,9 +1,11 @@
 package com.aleksandrmakarov.springbootcloudstorage.storage.controller;
 
+import com.aleksandrmakarov.springbootcloudstorage.storage.model.Breadcrumb;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.DeleteStorageObjectRequest;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.RenameStorageObjectRequest;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObjectModel;
 import com.aleksandrmakarov.springbootcloudstorage.storage.service.StorageService;
+import com.aleksandrmakarov.springbootcloudstorage.storage.util.StorageUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -29,7 +31,10 @@ public class StorageController {
 
         List<StorageObjectModel> items = storageService.findAll(prefix);
 
+        List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
+
         model.addAttribute("items", items);
+        model.addAttribute("breadcrumbs", breadcrumbs);
 
         return "storage/index";
     }
