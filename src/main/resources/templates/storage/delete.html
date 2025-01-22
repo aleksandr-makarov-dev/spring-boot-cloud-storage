@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+        }
+
+        table, th, td {
+            text-align: start;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<h3>Warning: Confirm action</h3>
+<p style="margin-bottom: 10px">Are you sure you want to delete these objects? <b>This action cannot be undone.</b></p>
+<form style="margin-bottom: 10px" th:action="@{/storage/delete}" method="post">
+    <button style="margin-right: 10px" type="submit">Yes, delete all object</button>
+    <a th:href="@{/storage(prefix=${param.prefix})}">No, Cancel</a>
+</form>
+<table>
+    <thead>
+    <tr>
+        <th>File Name</th>
+        <th>Type</th>
+        <th>Last Modified</th>
+        <th>File Size</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+</body>
+</html>

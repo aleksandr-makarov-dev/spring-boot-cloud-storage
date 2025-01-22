@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    label{
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-group{
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<form th:action="@{/storage/rename}" method="post">
+  <div class="form-group">
+    <label for="originalName">Original name</label>
+    <input id="originalName" name="originalName"  th:value="${prefix + name}">
+  </div>
+  <div class="form-group">
+    <label for="newName">New name</label>
+    <input id="newName" name="newName" th:value="${prefix + '<NEW-NAME>'}" autofocus>
+  </div>
+  <button type="submit">Rename</button>
+</form>
+</body>
+</html>

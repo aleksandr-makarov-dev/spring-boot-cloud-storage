@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+        }
+
+        table, th, td {
+            text-align: start;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<section>
+    <header>
+        <p th:text="${'prefix: ' + param.prefix}"></p>
+    </header>
+    <table>
+        <thead>
+        <tr>
+            <th><a href="#">File Name</a></th>
+            <th><a href="#">Type</a></th>
+            <th><a href="#">Last Modified</a></th>
+            <th><a href="#">File Size</a></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item: ${items}">
+            <td th:if="${item.isDir()}">
+                <a th:href="@{/storage(prefix=${item.prefix() + item.name()})}" th:text="${item.name()}"></a>
+            </td>
+            <td th:if="${!item.isDir()}" th:text="${item.name()}"></td>
+            <td th:if="${!item.isDir()}">file</td>
+            <td th:if="${item.isDir()}">dir</td>
+            <td th:text="${item.lastModified()}"></td>
+            <td th:text="${item.size()}"></td>
+            <td>
+                <a th:href="@{/storage/download(prefix=${item.prefix()}, name=${item.name()})}">Download</a>
+                <a th:href="@{/storage/rename(prefix=${item.prefix()}, name=${item.name()})}">Rename</a>
+                <a th:href="@{/storage/delete(prefix=${item.prefix()}, name=${item.name()})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3">
+                    <a href="#">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                </td>
+                <td style="text-align: end" colspan="2">
+                    <a th:href="@{/storage(prefix=${param.prefix}, size=10)}">10</a>
+                    <a th:href="@{/storage(prefix=${param.prefix}, size=20)}">20</a>
+                    <a th:href="@{/storage(prefix=${param.prefix}, size=30)}">30</a>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <footer>
+
+    </footer>
+</section>
+</body>
+</html>
