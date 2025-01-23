@@ -3,16 +3,14 @@ package com.aleksandrmakarov.springbootcloudstorage.storage.repository;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.SaveStorageObject;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObject;
 import com.aleksandrmakarov.springbootcloudstorage.storage.util.StorageUtils;
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.Result;
+import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,17 +39,20 @@ public class MinioRepository {
      * @return A list of `StorageObject` containing details of the objects in the bucket.
      * Each object contains its prefix, name, directory status, size, and last modification date.
      */
-    public List<StorageObject> listObjects(final String prefix) {
+    public List<StorageObject> listObjects(final String prefix, boolean recursive, boolean withStartAfter) {
 
         // Build the arguments required for listing objects in MinIO.
-        ListObjectsArgs args = ListObjectsArgs.builder()
+        ListObjectsArgs.Builder argsBuilder = ListObjectsArgs.builder()
                 .bucket(bucket) // Specify the bucket name.
                 .prefix(prefix) // Filter objects based on the provided prefix.
-                .startAfter(prefix) // Start listing objects after the specified prefix.
-                .build();
+                .recursive(recursive);
+
+        if (withStartAfter) {
+            argsBuilder.startAfter(prefix); // Start listing objects after the specified prefix
+        }
 
         // Fetch objects matching the criteria.
-        Iterable<Result<Item>> objects = minioClient.listObjects(args);
+        Iterable<Result<Item>> objects = minioClient.listObjects(argsBuilder.build());
 
         List<StorageObject> objectList = new ArrayList<>();
 
@@ -75,6 +76,7 @@ public class MinioRepository {
             } catch (Exception e) {
                 // Log any exceptions that occur while processing the objects.
                 log.error("Failed to get object:", e);
+                throw new RuntimeException(e);
             }
         }
 
@@ -86,26 +88,50 @@ public class MinioRepository {
      * Saves a storage object to the Minio storage system.
      *
      * @param saveStorageObject the object to be saved, containing details like object name,
-     *                          content type, input stream, and size.
+     *                          content contentType, input stream, and size.
      */
-    public void save(SaveStorageObject saveStorageObject) {
+    public void save(final SaveStorageObject saveStorageObject) {
 
         try {
             // Build the PutObjectArgs for the Minio client, specifying the bucket, object name,
-            // content type, and the input stream for uploading the file.
-            PutObjectArgs args = PutObjectArgs.builder()
+            // content contentType, and the input stream for uploading the file.
+            PutObjectArgs.Builder argsBuilder = PutObjectArgs.builder()
                     .bucket(bucket) // Specify the bucket where the object will be stored.
                     .object(saveStorageObject.object()) // Set the object name (path).
-                    .contentType(saveStorageObject.type()) // Set the content type (MIME type) of the file.
-                    .stream(saveStorageObject.stream(), saveStorageObject.size(), -1) // Set the input stream and the size of the file.
-                    .build();
+                    .stream(new ByteArrayInputStream(saveStorageObject.bytes()), saveStorageObject.size(), -1); // Set the input stream and the size of the file
+
+            if (saveStorageObject.contentType() != null) {
+                argsBuilder.contentType(saveStorageObject.contentType());
+            }
 
             // Upload the object to Minio.
-            minioClient.putObject(args);
+            minioClient.putObject(argsBuilder.build());
 
         } catch (Exception e) {
             // If an error occurs during the upload, log the exception with an error message.
             log.error("Failed to save object:", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Removes an object from Minio storage system.
+     *
+     * @param object the name of the object to be deleted
+     */
+
+    public void remove(final String object) {
+
+        try {
+            RemoveObjectArgs args = RemoveObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(object)
+                    .build();
+
+            minioClient.removeObject(args);
+        } catch (Exception e) {
+            log.error("Failed to remove object:", e);
+            throw new RuntimeException(e);
         }
     }
 

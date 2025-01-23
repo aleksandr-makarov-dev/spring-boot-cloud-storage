@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public class DefaultStorageService implements StorageService {
     @Override
     public List<StorageObjectModel> findObjects(String prefix) {
         // Get the list of objects from Minio repository.
-        List<StorageObject> objectList = minioRepository.listObjects(prefix);
+        List<StorageObject> objectList = minioRepository.listObjects(prefix, false, true);
 
         // Transform the list of StorageObject to StorageObjectModel with formatted size and last modified date.
         return objectList.stream()
@@ -40,7 +39,7 @@ public class DefaultStorageService implements StorageService {
                         o.prefix(), // Prefix (folder path) of the object.
                         o.name(),   // Name of the object.
                         o.isDir(),  // Whether the object is a directory.
-                        StorageUtils.formatSize(o.size()),  // Formatted size of the object.
+                        o.isDir() ? "" : StorageUtils.formatSize(o.size()),  // Formatted size of the object.
                         StorageUtils.formatZonedDateTime(o.lastModified())  // Formatted last modified date.
                 ))
                 .toList(); // Collect the transformed objects into a list.
@@ -50,7 +49,7 @@ public class DefaultStorageService implements StorageService {
      * Saves a list of uploaded objects to the storage system (Minio).
      * The objects are passed as MultipartFile objects, which are processed and saved to the given prefix (folder path).
      *
-     * @param prefix the folder path where the files should be stored.
+     * @param prefix  the folder path where the files should be stored.
      * @param objects a list of MultipartFile objects to be uploaded.
      */
     @Override
@@ -58,19 +57,43 @@ public class DefaultStorageService implements StorageService {
         // Loop through each file in the list of uploaded files.
         for (MultipartFile object : objects) {
             try {
-                // Create a SaveStorageObject to hold the object data (filename, size, content type, and content).
+                // Create a SaveStorageObject to hold the object data (filename, size, content contentType, and content).
                 minioRepository.save(
                         new SaveStorageObject(
                                 prefix + object.getOriginalFilename(), // Full path including prefix and filename.
                                 object.getSize(),  // Size of the file.
-                                object.getContentType(), // Content type (MIME type) of the file.
-                                new ByteArrayInputStream(object.getBytes()) // ByteArrayInputStream for file content.
+                                object.getContentType(), // Content contentType (MIME contentType) of the file.
+                                object.getBytes() // ByteArrayInputStream for file content.
                         )
                 );
             } catch (Exception e) {
                 // In case of any error, throw a runtime exception with the caught error.
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    @Override
+    public void createObject(String prefix, String name) {
+        minioRepository.save(new SaveStorageObject(prefix + name + "/", 0L, null, new byte[]{}));
+    }
+
+    @Override
+    public void deleteObject(String object) {
+
+        List<String> objectList = null;
+
+        if (object.endsWith("/")) {
+            objectList = minioRepository.listObjects(object, true, false)
+                    .stream()
+                    .map(o -> o.prefix() + o.name())
+                    .toList();
+        } else {
+            objectList = List.of(object);
+        }
+
+        for (String obj : objectList) {
+            minioRepository.remove(obj);
         }
     }
 }

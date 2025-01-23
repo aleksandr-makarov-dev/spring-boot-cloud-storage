@@ -112,6 +112,8 @@ public class StorageController {
             return "storage/delete";
         }
 
+        storageService.deleteObject(request.getPrefix() + request.getName());
+
         String redirectUrl = "redirect:/storage";
         if (request.getPrefix() != null && !request.getPrefix().isEmpty()) {
             redirectUrl += "?prefix=" + request.getPrefix();
@@ -149,5 +151,32 @@ public class StorageController {
             redirectUrl += "?prefix=" + request.getPrefix();
         }
         return redirectUrl;
+    }
+
+    @GetMapping("create")
+    public String create(@RequestParam(name = "prefix", required = false) String prefix, Model model) {
+
+        model.addAttribute("prefix", prefix);
+
+        return "storage/create";
+    }
+
+    @PostMapping("create")
+    public String create(@ModelAttribute @Valid CreateStorageObjectRequest request, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("prefix", request.getPrefix());
+            model.addAttribute("name", request.getName());
+            model.addAttribute("errors", bindingResult.getAllErrors()
+                    .stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .toList());
+
+            return "storage/create";
+        }
+
+        storageService.createObject(request.getPrefix(), request.getName());
+
+        return "redirect:/storage?prefix=" + request.getPrefix() + request.getName() + "/";
     }
 }

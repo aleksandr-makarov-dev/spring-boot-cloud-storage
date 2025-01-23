@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create - Cloud Storage</title>
+    <style>
+        label {
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h3>Create a folder</h3>
+
+<div th:if="${errors}">
+    <ul>
+        <li th:each="error: ${errors}" th:text="${error}"></li>
+    </ul>
+</div>
+
+<form th:action="@{/storage/create}" method="post">
+    <input id="prefix" name="prefix" type="hidden" th:value="${prefix}">
+    <div class="form-group">
+        <label for="nameInput">Name</label>
+        <input id="nameInput" name="name">
+    </div>
+    <button type="submit">Create folder</button>
+</form>
+</body>
+</html>
