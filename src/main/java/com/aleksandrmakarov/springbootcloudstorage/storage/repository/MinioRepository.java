@@ -4,6 +4,7 @@ import com.aleksandrmakarov.springbootcloudstorage.storage.model.SaveStorageObje
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObject;
 import com.aleksandrmakarov.springbootcloudstorage.storage.util.StorageUtils;
 import io.minio.*;
+import io.minio.http.Method;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Repository;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,7 +43,7 @@ public class MinioRepository {
      * @return A list of `StorageObject` containing details of the objects in the bucket.
      * Each object contains its prefix, name, directory status, size, and last modification date.
      */
-    public List<StorageObject> listObjects(final String prefix, boolean recursive, boolean withStartAfter) {
+    public List<StorageObject> listObjects(final String prefix, boolean recursive, String startAfter) {
 
         // Build the arguments required for listing objects in MinIO.
         ListObjectsArgs.Builder argsBuilder = ListObjectsArgs.builder()
@@ -47,8 +51,8 @@ public class MinioRepository {
                 .prefix(prefix) // Filter objects based on the provided prefix.
                 .recursive(recursive);
 
-        if (withStartAfter) {
-            argsBuilder.startAfter(prefix); // Start listing objects after the specified prefix
+        if (startAfter != null) {
+            argsBuilder.startAfter(startAfter); // Start listing objects after the specified prefix
         }
 
         // Fetch objects matching the criteria.
@@ -67,8 +71,8 @@ public class MinioRepository {
 
                 // Map the item details to a `StorageObject` and add it to the list.
                 objectList.add(new StorageObject(
-                        normalizedPrefix,
-                        StorageUtils.getObjectName(normalizedPrefix, item.objectName()),
+                        StorageUtils.getPrefix(item.objectName()),
+                        StorageUtils.getObjectName(item.objectName()),
                         item.isDir(),
                         item.size(),
                         item.lastModified()));
@@ -90,7 +94,7 @@ public class MinioRepository {
      * @param saveStorageObject the object to be saved, containing details like object name,
      *                          content contentType, input stream, and size.
      */
-    public void save(final SaveStorageObject saveStorageObject) {
+    public void saveObject(final SaveStorageObject saveStorageObject) {
 
         try {
             // Build the PutObjectArgs for the Minio client, specifying the bucket, object name,
@@ -109,7 +113,7 @@ public class MinioRepository {
 
         } catch (Exception e) {
             // If an error occurs during the upload, log the exception with an error message.
-            log.error("Failed to save object:", e);
+            log.error("Failed to saveObject object:", e);
             throw new RuntimeException(e);
         }
     }
@@ -120,7 +124,7 @@ public class MinioRepository {
      * @param object the name of the object to be deleted
      */
 
-    public void remove(final String object) {
+    public void removeObject(final String object) {
 
         try {
             RemoveObjectArgs args = RemoveObjectArgs.builder()
@@ -130,7 +134,26 @@ public class MinioRepository {
 
             minioClient.removeObject(args);
         } catch (Exception e) {
-            log.error("Failed to remove object:", e);
+            log.error("Failed to removeObject object:", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getPreSignedUrl(final String object, final int duration, final TimeUnit unit, final Map<String, String> extraQueryParams) {
+
+        try {
+            GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder()
+                    .bucket(bucket)
+                    .method(Method.GET)
+                    .object(object)
+                    .extraQueryParams(extraQueryParams)
+                    .expiry(duration, unit)
+                    .build();
+
+            return minioClient.getPresignedObjectUrl(args);
+        } catch (
+                Exception e) {
+            log.error("Failed to removeObject object:", e);
             throw new RuntimeException(e);
         }
     }

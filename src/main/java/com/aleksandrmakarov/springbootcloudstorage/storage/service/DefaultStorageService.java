@@ -1,6 +1,7 @@
 package com.aleksandrmakarov.springbootcloudstorage.storage.service;
 
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.SaveStorageObject;
+import com.aleksandrmakarov.springbootcloudstorage.storage.model.SearchStorageObject;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObject;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.StorageObjectModel;
 import com.aleksandrmakarov.springbootcloudstorage.storage.repository.MinioRepository;
@@ -9,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Default implementation of the StorageService interface.
@@ -29,9 +33,9 @@ public class DefaultStorageService implements StorageService {
      * @return a list of StorageObjectModel, which includes details of each object.
      */
     @Override
-    public List<StorageObjectModel> findObjects(String prefix) {
+    public List<StorageObjectModel> listObjects(String prefix) {
         // Get the list of objects from Minio repository.
-        List<StorageObject> objectList = minioRepository.listObjects(prefix, false, true);
+        List<StorageObject> objectList = minioRepository.listObjects(prefix, false, prefix);
 
         // Transform the list of StorageObject to StorageObjectModel with formatted size and last modified date.
         return objectList.stream()
@@ -58,7 +62,7 @@ public class DefaultStorageService implements StorageService {
         for (MultipartFile object : objects) {
             try {
                 // Create a SaveStorageObject to hold the object data (filename, size, content contentType, and content).
-                minioRepository.save(
+                minioRepository.saveObject(
                         new SaveStorageObject(
                                 prefix + object.getOriginalFilename(), // Full path including prefix and filename.
                                 object.getSize(),  // Size of the file.
@@ -75,7 +79,7 @@ public class DefaultStorageService implements StorageService {
 
     @Override
     public void createObject(String prefix, String name) {
-        minioRepository.save(new SaveStorageObject(prefix + name + "/", 0L, null, new byte[]{}));
+        minioRepository.saveObject(new SaveStorageObject(prefix + name + "/", 0L, null, new byte[]{}));
     }
 
     @Override
@@ -84,7 +88,7 @@ public class DefaultStorageService implements StorageService {
         List<String> objectList = null;
 
         if (object.endsWith("/")) {
-            objectList = minioRepository.listObjects(object, true, false)
+            objectList = minioRepository.listObjects(object, true, null)
                     .stream()
                     .map(o -> o.prefix() + o.name())
                     .toList();
@@ -93,7 +97,32 @@ public class DefaultStorageService implements StorageService {
         }
 
         for (String obj : objectList) {
-            minioRepository.remove(obj);
+            minioRepository.removeObject(obj);
         }
+    }
+
+    @Override
+    public List<SearchStorageObject> searchObjects(String query) {
+        List<StorageObject> objectList = minioRepository.listObjects("", true, null);
+
+        return objectList.stream()
+                .filter(o -> !o.name().endsWith("/") && o.name().toLowerCase().contains(query.toLowerCase()))
+                .map(o -> new SearchStorageObject(o.name(), o.prefix()))
+                .toList();
+    }
+
+    @Override
+    public String downloadObject(String object) {
+
+        Map<String, String> extraQueryParams = new HashMap<>();
+
+        extraQueryParams.put("response-content-disposition", "attachment; filename=\"" + object + "\"");
+
+        return minioRepository.getPreSignedUrl(
+                object,
+                2,
+                TimeUnit.HOURS,
+                extraQueryParams
+        );
     }
 }

@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>Upload - Cloud Storage</title>
     <style>
+
+        :root {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         label {
             margin-bottom: 5px;
             display: block;
@@ -19,6 +24,11 @@
             border: 1px dashed black;
             text-align: center;
             cursor: pointer;
+        }
+
+        .drag-over{
+            border-color: blue;
+            background: lightblue;
         }
 
         .breadcrumbs {
@@ -52,7 +62,7 @@
     <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <input type="hidden" name="prefix" th:value="${param.prefix}">
-            <label class="drop-zone" for="fileInput">Drag files here or <span
+            <label id="fileDropZone" class="drop-zone" for="fileInput">Drag files here or <span
                     style="color:blue; text-decoration: underline">Choose your files</span></label>
             <input id="fileInput" hidden="hidden" name="files" type="file" multiple>
         </div>
@@ -76,6 +86,29 @@
 </div>
 <script>
     const folderInput = document.getElementById("folderInput");
+    const fileDropZone = document.getElementById("fileDropZone");
+
+    fileDropZone.addEventListener("dragover",function (e){
+        e.preventDefault();
+
+        e.target.classList.add("drag-over");
+    })
+
+    fileDropZone.addEventListener("dragleave",function (e){
+        e.target.classList.remove("drag-over");
+    })
+
+    fileDropZone.addEventListener("drop", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        fileInput.files = e.dataTransfer.files;
+
+        const changeEvent = new Event("change", { bubbles: true });
+        fileInput.dispatchEvent(changeEvent);
+
+        e.target.classList.remove("drag-over");
+    })
 
     folderInput.addEventListener("change", function (e) {
 
@@ -95,6 +128,7 @@
 
         folderList.appendChild(ul);
     })
+
 
     const fileInput = document.getElementById("fileInput");
 

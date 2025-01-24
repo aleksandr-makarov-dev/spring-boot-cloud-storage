@@ -17,15 +17,35 @@ public class StorageUtils {
     /**
      * Retrieves the object name without the given prefix.
      *
-     * @param prefix     The prefix to be removed from the object name, if present.
-     * @param objectName The full object name.
+     * @param object The full object name.
      * @return The object name without the prefix if it starts with the prefix; otherwise, the original object name.
      */
-    public static String getObjectName(String prefix, String objectName) {
-        if (objectName.startsWith(prefix)) {
-            return objectName.substring(prefix.length());
+    public static String getObjectName(String object) {
+
+        if (!object.contains("/")) {
+            return object;
         }
-        return objectName;
+
+        String[] parts = object.split("/");
+
+        return object.endsWith("/") ? parts[parts.length - 1] + "/" : parts[parts.length - 1];
+    }
+
+    public static String getPrefix(String object) {
+        if (!object.contains("/")) {
+            return "";
+        }
+
+        String[] parts = object.split("/");
+
+        StringBuilder prefix = new StringBuilder();
+
+        for (int i = 0; i < parts.length - 1; i++) {
+            prefix.append(parts[i]).append("/");
+        }
+
+
+        return prefix.toString();
     }
 
     /**

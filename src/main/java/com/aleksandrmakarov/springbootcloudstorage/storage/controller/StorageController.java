@@ -36,7 +36,7 @@ public class StorageController {
     @GetMapping
     public String index(@RequestParam(value = "prefix", required = false) String prefix,
                         Model model) {
-        List<StorageObjectModel> items = storageService.findObjects(prefix);
+        List<StorageObjectModel> items = storageService.listObjects(prefix);
         List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
 
         model.addAttribute("items", items);
@@ -178,5 +178,20 @@ public class StorageController {
         storageService.createObject(request.getPrefix(), request.getName());
 
         return "redirect:/storage?prefix=" + request.getPrefix() + request.getName() + "/";
+    }
+
+    @GetMapping("search")
+    public String search(@RequestParam("query") String query, Model model) {
+
+        List<SearchStorageObject> items = storageService.searchObjects(query);
+
+        model.addAttribute("items", items);
+
+        return "storage/search";
+    }
+
+    @GetMapping("download")
+    public String download(@RequestParam("object") String object, Model model) {
+        return "redirect:" + storageService.downloadObject(object);
     }
 }

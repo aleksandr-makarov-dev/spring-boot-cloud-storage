@@ -5,6 +5,10 @@
     <title>List - Cloud Storage</title>
     <style>
 
+        :root {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         table {
             border-collapse: collapse;
         }
@@ -42,7 +46,7 @@
         }
     </style>
 </head>
-<body style="max-width: 864px;">
+<body style="max-width: 992px;">
 <section>
     <header>
         <div>
@@ -54,8 +58,8 @@
         </div>
         <div class="navigation">
             <div style="flex: 1">
-                <form style="display: flex; width: 100%">
-                    <input style="width: 100%" name="searchQuery" id="searchQuery" type="search">
+                <form style="display: flex; width: 100%" method="get" th:action="@{/storage/search}">
+                    <input style="width: 100%" name="query" id="query" type="search">
                     <button>Search</button>
                 </form>
             </div>
@@ -68,14 +72,17 @@
     <table style="width: 100%">
         <thead>
         <tr>
-            <th><a href="#">File Name</a></th>
-            <th><a href="#">Type</a></th>
-            <th><a href="#">Last Modified</a></th>
-            <th><a href="#">File Size</a></th>
-            <th></th>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Last Modified</th>
+            <th>File Size</th>
+            <th style="width: 200px">Action</th>
         </tr>
         </thead>
         <tbody>
+        <tr th:if="${items.size() == 0}">
+            <td colspan="5">This folder is empty. Try uploading a new file.</td>
+        </tr>
         <tr th:each="item: ${items}">
             <td th:if="${item.isDir()}">
                 <a th:href="@{/storage(prefix=${item.prefix() + item.name()})}" th:text="${item.name()}"></a>
@@ -86,28 +93,13 @@
             <td th:text="${item.lastModified()}"></td>
             <td th:text="${item.size()}"></td>
             <td>
-                <a th:href="@{/storage/download(prefix=${item.prefix()}, name=${item.name()})}">Download</a>
+                <a th:if="${!item.isDir()}"
+                   th:href="@{/storage/download(object=${item.prefix()+item.name()})}">Download</a>
                 <a th:href="@{/storage/rename(prefix=${item.prefix()}, name=${item.name()})}">Rename</a>
                 <a th:href="@{/storage/delete(prefix=${item.prefix()}, name=${item.name()})}">Delete</a>
             </td>
         </tr>
         </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="3">
-                <a href="#">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
-            </td>
-            <td style="text-align: end" colspan="2">
-                <a th:href="@{/storage(prefix=${param.prefix}, size=10)}">10</a>
-                <a th:href="@{/storage(prefix=${param.prefix}, size=20)}">20</a>
-                <a th:href="@{/storage(prefix=${param.prefix}, size=30)}">30</a>
-            </td>
-        </tr>
-        </tfoot>
     </table>
 </section>
 </body>

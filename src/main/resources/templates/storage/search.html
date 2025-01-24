@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Results - Cloud Storage</title>
+  <style>
+
+    :root {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 5px;
+    }
+
+    table, th, td {
+      text-align: start;
+      border: 1px solid black;
+    }
+
+    .breadcrumbs {
+      list-style: none;
+    }
+
+    ul {
+      padding-inline: 0;
+    }
+
+    .breadcrumbs li {
+      display: inline;
+    }
+
+    .breadcrumbs li + li:before {
+      padding: 3px;
+      content: "/";
+    }
+
+    .navigation {
+      margin-bottom: 10px;
+      gap: 24px;
+      display: flex;
+    }
+  </style>
+</head>
+<body style="max-width: 992px;">
+<section>
+  <header>
+    <div class="navigation">
+      <div style="flex: 1">
+        <form style="display: flex; width: 100%" method="get" th:action="@{/storage/search}">
+          <input style="width: 100%" name="query" id="query" type="search" th:value="${param.query}">
+          <button>Search</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  <table style="width: 100%">
+    <thead>
+    <tr>
+      <th>File Name</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${items.size() == 0}">
+      <td colspan="2">No results matched search query.</td>
+    </tr>
+    <tr th:each="item: ${items}">
+      <td th:text="${item.name()}"></td>
+      <td>
+        <a th:href="@{/storage(prefix=${item.href()})}">Open in folder</a>
+      </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    </tfoot>
+  </table>
+</section>
+</body>
+</html>
