@@ -3,100 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <title>Upload - Cloud Storage</title>
-    <style>
-
-        :root {
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        label {
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-        }
-
-        .drop-zone {
-            width: 345px;
-            padding: 45px;
-            border: 1px dashed black;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .drag-over{
-            border-color: blue;
-            background: lightblue;
-        }
-
-        .breadcrumbs {
-            list-style: none;
-        }
-
-        ul {
-            padding-inline: 0;
-        }
-
-        .breadcrumbs li {
-            display: inline;
-        }
-
-        .breadcrumbs li + li:before {
-            padding: 3px;
-            content: "/";
-        }
-    </style>
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
 </head>
-<body style="max-width: 864px;">
-<div>
-    <ul class="breadcrumbs">
-        <li th:each="crumb: ${breadcrumbs}">
+<body class="container-sm bg-light">
+<!-- Header -->
+<header class="navbar navbar-expand-sm navbar-dark bg-dark d-flex justify-content-between align-items-center px-3 mb-3">
+    <a class="navbar-brand text-white" href="/storage">Cloud Storage</a>
+    <div th:if="${user == null}">
+        <a class="btn btn-secondary me-2" href="/users/login">Login</a>
+        <a class="btn btn-primary" href="/users/register">Register</a>
+    </div>
+    <div class="d-flex align-items-center" th:if="${user}">
+        <span class="text-white me-3" th:text="${user.getUsername()}"></span>
+        <a href="/users/logout" class="btn btn-primary">Logout</a>
+    </div>
+</header>
+
+<!-- Breadcrumbs -->
+<div class="mb-3">
+    <ul class="breadcrumb">
+        <li th:each="crumb: ${breadcrumbs}" class="breadcrumb-item">
             <a th:href="@{/storage/upload(prefix=${crumb.href()})}" th:text="${crumb.name()}"></a>
         </li>
     </ul>
 </div>
-<div style="margin-bottom: 10px">
-    <h3>Upload files and folders</h3>
-    <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <input type="hidden" name="prefix" th:value="${param.prefix}">
-            <label id="fileDropZone" class="drop-zone" for="fileInput">Drag files here or <span
-                    style="color:blue; text-decoration: underline">Choose your files</span></label>
-            <input id="fileInput" hidden="hidden" name="files" type="file" multiple>
+
+<!-- Main Content -->
+<main style="max-width: 576px;">
+    <h3 class="mb-4">Upload Files and Folders</h3>
+
+    <!-- File Upload Form -->
+    <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data" class="mb-5">
+        <input type="hidden" name="prefix" th:value="${param.prefix}">
+        <div class="mb-3">
+            <label id="fileDropZone" class="drop-zone p-5 border border-secondary rounded text-center d-block" style="border-style: dashed" for="fileInput">
+                Drag files here or <span class="text-primary text-decoration-underline">Choose your files</span>
+            </label>
+            <input id="fileInput" hidden name="files" type="file" multiple>
         </div>
-        <div id="fileListing">
-        </div>
-        <button>Upload files</button>
+        <div id="fileListing" class="mb-3"></div>
+        <button type="submit" class="btn btn-primary w-100">Upload Files</button>
     </form>
-</div>
-<div>
+
+    <!-- Folder Upload Form -->
     <form th:action="@{/storage/upload}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="prefix" th:value="${param.prefix}">
-        <div class="form-group">
-            <label class="drop-zone" for="folderInput">Drag folder here or <span
-                    style="color:blue; text-decoration: underline">Choose your folder</span></label>
-            <input id="folderInput" hidden="hidden" name="files" type="file" webkitdirectory mozdirectory multiple>
+        <div class="mb-3">
+            <label class="drop-zone p-5 border border-secondary rounded text-center d-block" for="folderInput">
+                Drag folder here or <span class="text-primary text-decoration-underline">Choose your folder</span>
+            </label>
+            <input id="folderInput" hidden name="files" type="file" webkitdirectory mozdirectory multiple>
         </div>
-        <div id="folderListing">
-        </div>
-        <button>Upload folder</button>
+        <div id="folderListing" class="mb-3"></div>
+        <button type="submit" class="btn btn-primary w-100">Upload Folder</button>
     </form>
-</div>
+</main>
+
+<!-- JavaScript -->
 <script>
     const folderInput = document.getElementById("folderInput");
     const fileDropZone = document.getElementById("fileDropZone");
 
-    fileDropZone.addEventListener("dragover",function (e){
+    fileDropZone.addEventListener("dragover", function (e) {
         e.preventDefault();
-
         e.target.classList.add("drag-over");
-    })
+    });
 
-    fileDropZone.addEventListener("dragleave",function (e){
+    fileDropZone.addEventListener("dragleave", function (e) {
         e.target.classList.remove("drag-over");
-    })
+    });
 
     fileDropZone.addEventListener("drop", function (e) {
         e.stopPropagation();
@@ -108,48 +83,43 @@
         fileInput.dispatchEvent(changeEvent);
 
         e.target.classList.remove("drag-over");
-    })
+    });
 
     folderInput.addEventListener("change", function (e) {
-
-        const folderList = document.getElementById("folderListing")
+        const folderList = document.getElementById("folderListing");
         folderList.innerHTML = "";
 
         const files = e.target.files;
-
         const ul = document.createElement("ul");
 
         for (const file of files) {
-            const li = document.createElement("li")
+            const li = document.createElement("li");
             li.innerText = file.name;
 
             ul.appendChild(li);
         }
 
         folderList.appendChild(ul);
-    })
-
+    });
 
     const fileInput = document.getElementById("fileInput");
 
     fileInput.addEventListener("change", function (e) {
-
-        const fileList = document.getElementById("fileListing")
+        const fileList = document.getElementById("fileListing");
         fileList.innerHTML = "";
 
         const files = e.target.files;
-
         const ul = document.createElement("ul");
 
         for (const file of files) {
-            const li = document.createElement("li")
+            const li = document.createElement("li");
             li.innerText = file.name;
 
             ul.appendChild(li);
         }
 
         fileList.appendChild(ul);
-    })
+    });
 </script>
 </body>
 </html>

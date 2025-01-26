@@ -2,67 +2,61 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Search Results - Cloud Storage</title>
-  <style>
-
-    :root {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    table {
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 5px;
-    }
-
-    table, th, td {
-      text-align: start;
-      border: 1px solid black;
-    }
-
-    .breadcrumbs {
-      list-style: none;
-    }
-
-    ul {
-      padding-inline: 0;
-    }
-
-    .breadcrumbs li {
-      display: inline;
-    }
-
-    .breadcrumbs li + li:before {
-      padding: 3px;
-      content: "/";
-    }
-
-    .navigation {
-      margin-bottom: 10px;
-      gap: 24px;
-      display: flex;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search - Cloud Storage</title>
+  <link rel="stylesheet" href="/public/css/bootstrap.min.css">
 </head>
-<body style="max-width: 992px;">
-<section>
-  <header>
-    <div class="navigation">
-      <div style="flex: 1">
-        <form style="display: flex; width: 100%" method="get" th:action="@{/storage/search}">
-          <input style="width: 100%" name="query" id="query" type="search" th:value="${param.query}">
-          <button>Search</button>
-        </form>
-      </div>
+<body class="container-sm bg-light">
+<!-- Header -->
+<header class="navbar navbar-expand-sm navbar-dark bg-dark d-flex justify-content-between align-items-center px-3 mb-3">
+  <a class="navbar-brand text-white" href="/storage">Cloud Storage</a>
+  <div th:if="${user == null}">
+    <a class="btn btn-secondary me-2" href="/users/login">Login</a>
+    <a class="btn btn-primary" href="/users/register">Register</a>
+  </div>
+  <div class="d-flex align-items-center" th:if="${user}">
+    <span class="text-white me-3" th:text="${user.getUsername()}"></span>
+    <a href="/users/logout" class="btn btn-primary">Logout</a>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="px-2">
+  <section>
+    <!-- Breadcrumbs -->
+    <nav class="mb-3">
+      <ul class="breadcrumb mb-0">
+        <li class="breadcrumb-item" th:each="crumb: ${breadcrumbs}">
+          <a th:href="@{/storage(prefix=${crumb.href()})}" th:text="${crumb.name()}"></a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and Actions -->
+    <div class="d-flex mb-3">
+      <form class="w-100 d-flex align-items-center" method="get" th:action="@{/storage/search}">
+        <div class="input-group me-2">
+          <input class="form-control" name="query" id="query" type="search" placeholder="Search">
+          <button class="btn btn-secondary" type="submit">
+            Search
+          </button>
+        </div>
+        <a class="btn btn-secondary me-2 text-nowrap" th:href="@{/storage/create(prefix=${param.prefix})}">
+          New folder
+        </a>
+        <a class="btn btn-secondary" th:href="@{/storage/upload(prefix=${param.prefix})}">
+          Upload
+        </a>
+      </form>
     </div>
-  </header>
-  <table style="width: 100%">
-    <thead>
+  </section>
+
+  <!-- File List Table -->
+  <table class="table table-bordered">
+    <thead class="table-light">
     <tr>
       <th>File Name</th>
-      <th>Action</th>
+      <th></th>
     </tr>
     </thead>
     <tbody>
@@ -76,9 +70,7 @@
       </td>
     </tr>
     </tbody>
-    <tfoot>
-    </tfoot>
   </table>
-</section>
+</main>
 </body>
 </html>

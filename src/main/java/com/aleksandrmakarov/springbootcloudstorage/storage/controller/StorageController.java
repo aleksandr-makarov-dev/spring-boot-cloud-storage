@@ -3,8 +3,10 @@ package com.aleksandrmakarov.springbootcloudstorage.storage.controller;
 import com.aleksandrmakarov.springbootcloudstorage.storage.model.*;
 import com.aleksandrmakarov.springbootcloudstorage.storage.service.StorageService;
 import com.aleksandrmakarov.springbootcloudstorage.storage.util.StorageUtils;
+import com.aleksandrmakarov.springbootcloudstorage.users.security.WebUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,12 +37,13 @@ public class StorageController {
      */
     @GetMapping
     public String index(@RequestParam(value = "prefix", required = false) String prefix,
-                        Model model) {
-        List<StorageObjectModel> items = storageService.listObjects(prefix);
+                        Model model, @AuthenticationPrincipal WebUserDetails user) {
+        List<StorageObjectModel> items = storageService.listObjects(user.getUsername(), prefix);
         List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
 
         model.addAttribute("items", items);
         model.addAttribute("breadcrumbs", breadcrumbs);
+        model.addAttribute("user", user);
 
         return "storage/index";
     }
@@ -54,9 +57,10 @@ public class StorageController {
      * @return the name of the view template for renaming objects.
      */
     @GetMapping("rename")
-    public String rename(@RequestParam("prefix") String prefix, @RequestParam("name") String name, Model model) {
+    public String rename(@RequestParam("prefix") String prefix, @RequestParam("name") String name, Model model, @AuthenticationPrincipal WebUserDetails user) {
         model.addAttribute("prefix", prefix);
         model.addAttribute("name", name);
+        model.addAttribute("user", user);
         return "storage/rename";
     }
 
@@ -64,16 +68,11 @@ public class StorageController {
      * Handles POST requests to rename a storage object.
      *
      * @param request       the rename request containing the prefix and new name.
-     * @param bindingResult result of validation checks on the request object.
      * @return a redirection to the storage index page.
      */
     @PostMapping("rename")
-    public String rename(@ModelAttribute @Valid RenameStorageObjectRequest request, BindingResult bindingResult) {
-        String redirectUrl = "redirect:/storage";
-        if (request.getPrefix() != null && !request.getPrefix().isEmpty()) {
-            redirectUrl += "?prefix=" + request.getPrefix();
-        }
-        return redirectUrl;
+    public String rename(@ModelAttribute @Valid RenameStorageObjectRequest request, @AuthenticationPrincipal WebUserDetails user) {
+        return buildStorageRedirectUrl(request.getPrefix());
     }
 
     /**
@@ -85,9 +84,10 @@ public class StorageController {
      * @return the name of the view template for deleting objects.
      */
     @GetMapping("delete")
-    public String delete(@RequestParam(name = "prefix", required = false) String prefix, @RequestParam(name = "name") String name, Model model) {
+    public String delete(@RequestParam(name = "prefix", required = false) String prefix, @RequestParam(name = "name") String name, Model model, @AuthenticationPrincipal WebUserDetails user) {
         model.addAttribute("prefix", prefix);
         model.addAttribute("name", name);
+        model.addAttribute("user", user);
         return "storage/delete";
     }
 
@@ -100,7 +100,7 @@ public class StorageController {
      * @return a redirection to the storage index page if successful, or the delete page if there are errors.
      */
     @PostMapping("delete")
-    public String delete(@ModelAttribute @Valid DeleteStorageObjectRequest request, BindingResult bindingResult, Model model) {
+    public String delete(@ModelAttribute @Valid DeleteStorageObjectRequest request, BindingResult bindingResult, Model model, @AuthenticationPrincipal WebUserDetails user) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("prefix", request.getPrefix());
             model.addAttribute("name", request.getName());
@@ -112,13 +112,9 @@ public class StorageController {
             return "storage/delete";
         }
 
-        storageService.deleteObject(request.getPrefix() + request.getName());
+        storageService.deleteObject(user.getUsername(), request.getPrefix(), request.getName());
 
-        String redirectUrl = "redirect:/storage";
-        if (request.getPrefix() != null && !request.getPrefix().isEmpty()) {
-            redirectUrl += "?prefix=" + request.getPrefix();
-        }
-        return redirectUrl;
+        return buildStorageRedirectUrl(request.getPrefix());
     }
 
     /**
@@ -130,9 +126,10 @@ public class StorageController {
      */
     @GetMapping("upload")
     public String upload(@RequestParam(value = "prefix", required = false) String prefix,
-                         Model model) {
+                         Model model, @AuthenticationPrincipal WebUserDetails user) {
         List<Breadcrumb> breadcrumbs = StorageUtils.getBreadcrumbs(prefix);
         model.addAttribute("breadcrumbs", breadcrumbs);
+        model.addAttribute("user", user);
         return "storage/upload";
     }
 
@@ -143,26 +140,23 @@ public class StorageController {
      * @return a redirection to the storage index page.
      */
     @PostMapping("upload")
-    public String upload(@ModelAttribute @Valid UploadFilesRequest request) {
-        storageService.saveObjects(request.getPrefix(), request.getFiles());
+    public String upload(@ModelAttribute @Valid UploadFilesRequest request, @AuthenticationPrincipal WebUserDetails user) {
+        storageService.saveObjects(user.getUsername(), request.getPrefix(), request.getFiles());
 
-        String redirectUrl = "redirect:/storage";
-        if (request.getPrefix() != null && !request.getPrefix().isEmpty()) {
-            redirectUrl += "?prefix=" + request.getPrefix();
-        }
-        return redirectUrl;
+        return buildStorageRedirectUrl(request.getPrefix());
     }
 
     @GetMapping("create")
-    public String create(@RequestParam(name = "prefix", required = false) String prefix, Model model) {
+    public String create(@RequestParam(name = "prefix", required = false) String prefix, Model model, @AuthenticationPrincipal WebUserDetails user) {
 
         model.addAttribute("prefix", prefix);
+        model.addAttribute("user", user);
 
         return "storage/create";
     }
 
     @PostMapping("create")
-    public String create(@ModelAttribute @Valid CreateStorageObjectRequest request, BindingResult bindingResult, Model model) {
+    public String create(@ModelAttribute @Valid CreateStorageObjectRequest request, BindingResult bindingResult, Model model, @AuthenticationPrincipal WebUserDetails user) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("prefix", request.getPrefix());
@@ -175,23 +169,35 @@ public class StorageController {
             return "storage/create";
         }
 
-        storageService.createObject(request.getPrefix(), request.getName());
+        storageService.createObject(user.getUsername(), request.getPrefix(), request.getName());
 
-        return "redirect:/storage?prefix=" + request.getPrefix() + request.getName() + "/";
+        return buildStorageRedirectUrl(request.getPrefix() + request.getName());
     }
 
     @GetMapping("search")
-    public String search(@RequestParam("query") String query, Model model) {
+    public String search(@RequestParam("query") String query, Model model, @AuthenticationPrincipal WebUserDetails user) {
 
-        List<SearchStorageObject> items = storageService.searchObjects(query);
+        List<SearchStorageObject> items = storageService.searchObjects(user.getUsername(), "", query);
 
         model.addAttribute("items", items);
+        model.addAttribute("user", user);
 
         return "storage/search";
     }
 
     @GetMapping("download")
-    public String download(@RequestParam("object") String object, Model model) {
-        return "redirect:" + storageService.downloadObject(object);
+    public String download(@RequestParam("object") String object, @AuthenticationPrincipal WebUserDetails user) {
+        return "redirect:" + storageService.downloadObject(user.getUsername(), "", object);
+    }
+
+    private String buildStorageRedirectUrl(String prefix) {
+
+        String redirectUrl = "redirect:/storage";
+
+        if (prefix != null && !prefix.isEmpty()) {
+            redirectUrl += "?prefix=" + prefix;
+        }
+
+        return redirectUrl;
     }
 }

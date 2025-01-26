@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Create - Cloud Storage</title>
+    <title>Logout - Cloud Storage</title>
     <link rel="stylesheet" href="/public/css/bootstrap.min.css">
 </head>
 <body class="container-sm bg-light">
@@ -21,7 +21,7 @@
 
 <!-- Main Content -->
 <main class="py-4 px-3">
-    <h2 class="mb-4">Create a Folder</h2>
+    <h2 class="mb-4 text-danger">Warning: Confirm Action</h2>
 
     <!-- Display Errors -->
     <div th:if="${errors}" class="alert alert-danger">
@@ -30,15 +30,14 @@
         </ul>
     </div>
 
-    <!-- Create Folder Form -->
-    <form th:action="@{/storage/create}" method="post" style="max-width: 567px;">
-        <input id="prefix" name="prefix" type="hidden" th:value="${prefix}">
+    <p class="mb-4">Are you sure you want to logout from user?</p>
 
-        <div class="mb-3">
-            <label for="nameInput" class="form-label">Name</label>
-            <input id="nameInput" name="name" type="text" class="form-control" autofocus required>
+    <!-- Confirm Action Form -->
+    <form th:action="@{/users/logout.html}" method="post" style="max-width: 567px;">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Yes, logout</button>
+            <a class="btn btn-secondary" href="/storage">No, Cancel</a>
         </div>
-        <button type="submit" class="btn btn-primary">Create Folder</button>
     </form>
 </main>
 </body>

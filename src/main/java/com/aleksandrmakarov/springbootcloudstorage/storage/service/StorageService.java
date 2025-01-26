@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface StorageService {
 
-    List<StorageObjectModel> listObjects(String prefix);
+    List<StorageObjectModel> listObjects(String username, String prefix);
 
-    void saveObjects(String prefix, List<MultipartFile> objects);
+    void saveObjects(String username, String prefix, List<MultipartFile> objects);
 
-    void createObject(String prefix, String name);
+    void createObject(String username, String prefix, String name);
 
-    void deleteObject(String object);
+    void deleteObject(String username, String prefix, String name);
 
-    List<SearchStorageObject> searchObjects(String query);
+    List<SearchStorageObject> searchObjects(String username, String prefix, String query);
 
-    String downloadObject(String object);
+    String downloadObject(String username, String prefix, String name);
 }

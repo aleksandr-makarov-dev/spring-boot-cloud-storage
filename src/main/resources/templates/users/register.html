@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Cloud Storage</title>
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
+</head>
+<body class="container-sm bg-light">
+<!-- Header -->
+<header class="navbar navbar-expand-sm navbar-dark bg-dark d-flex justify-content-between align-items-center px-3 mb-3">
+    <a class="navbar-brand text-white" href="/storage">Cloud Storage</a>
+    <div>
+        <a class="btn btn-secondary me-2" href="/users/login">Login</a>
+        <a class="btn btn-primary" href="/users/register">Register</a>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main  style="max-width: 567px;" class="py-4 px-3">
+    <h2 class="mb-4">Register user</h2>
+
+    <div class="alert alert-danger" th:if="${errors}">
+        <ul class="mb-0">
+            <li th:each="error: ${errors}" th:text="${error}"></li>
+        </ul>
+    </div>
+
+    <form action="/users/register" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" id="username" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm password</label>
+            <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
+        <p class="text-center">Already have an account? <a href="/users/login">Login</a></p>
+    </form>
+</main>
+</body>
+</html>
