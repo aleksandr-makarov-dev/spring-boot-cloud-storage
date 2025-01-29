@@ -4,12 +4,13 @@ import com.aleksandrmakarov.springbootcloudstorage.users.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public class WebUserDetails implements UserDetails {
+public class WebUserDetails implements UserDetails, Serializable {
 
-    private final transient User user;
+    private final User user;
 
     public WebUserDetails(User user) {
         this.user = user;

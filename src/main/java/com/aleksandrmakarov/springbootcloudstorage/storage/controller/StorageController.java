@@ -171,7 +171,7 @@ public class StorageController {
 
         storageService.createObject(user.getUsername(), request.getPrefix(), request.getName());
 
-        return buildStorageRedirectUrl(request.getPrefix() + request.getName());
+        return buildStorageRedirectUrl(request.getPrefix() + request.getName() + "/");
     }
 
     @GetMapping("search")

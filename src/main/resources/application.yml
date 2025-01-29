@@ -8,8 +8,16 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
+  session:
+    redis:
+      namespace: spring:session
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redisrootpassword
   minio:
     endpoint: http://localhost:9000
-    access-key: 9DoDjTvmIhbTCN5AMh8i
-    secret-key: iVhZGLZbYhbqCsJQ10rBYmH2fvyw2hm4a8k2Kh7M
+    access-key: CRykhwhftrDUgU55wvJR
+    secret-key: ompxFEYjjhSUoz3AZ5QIQPB8VkvGL8wacuyxcyz2
     bucket: my-bucket

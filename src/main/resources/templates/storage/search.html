@@ -22,21 +22,11 @@
 
 <!-- Main Content -->
 <main class="px-2">
-  <section>
-    <!-- Breadcrumbs -->
-    <nav class="mb-3">
-      <ul class="breadcrumb mb-0">
-        <li class="breadcrumb-item" th:each="crumb: ${breadcrumbs}">
-          <a th:href="@{/storage(prefix=${crumb.href()})}" th:text="${crumb.name()}"></a>
-        </li>
-      </ul>
-    </nav>
-
     <!-- Search and Actions -->
     <div class="d-flex mb-3">
       <form class="w-100 d-flex align-items-center" method="get" th:action="@{/storage/search}">
         <div class="input-group me-2">
-          <input class="form-control" name="query" id="query" type="search" placeholder="Search">
+          <input class="form-control" name="query" id="query" type="search" placeholder="Search" th:value="${param.query}">
           <button class="btn btn-secondary" type="submit">
             Search
           </button>
