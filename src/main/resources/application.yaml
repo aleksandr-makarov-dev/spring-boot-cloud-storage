@@ -1,0 +1,8 @@
+spring:
+  application:
+   name: spring-boot-cloud-storage
+minio:
+  bucket-name: ${MINIO_BUCKET_NAME}
+  endpoint: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
